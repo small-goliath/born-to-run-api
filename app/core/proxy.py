@@ -2,10 +2,14 @@ from pydantic import BaseModel
 from app.api.deps import SessionDep
 from aiocache import cached, Cache
 from app.models import CrewBase
-import app.core.crew_service as service
+import app.core.crew_service as crew_service
+import app.core.login_service as login_service
 
-def cache_key_builder(func, args):
-    key_parts = [func.__name__]  
+def cache_key_builder(func, args=None):
+    key_parts = [func.__name__]
+
+    if args is None:
+        return "".join(key_parts)
 
     for arg in args:  
         if isinstance(arg, BaseModel):  
@@ -26,4 +30,8 @@ def cache_decorator(ttl=60*60):
 
 @cache_decorator()
 async def search_crews(session: SessionDep) -> CrewBase:
-    return await service.search_crews(session)
+    return await crew_service.search_crews(session)
+
+@cache_decorator()
+async def get_kakao_auth_code() -> str:
+    return await login_service.get_kakao_auth_code()
