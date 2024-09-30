@@ -2,16 +2,17 @@ from collections.abc import Generator
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jwt.exceptions import InvalidKeyTypeError
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from sqlmodel import Session
+from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.hazmat.backends import default_backend
 
-from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.models import TokenPayload, User
+import logging
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -26,33 +27,41 @@ def get_db() -> Generator[Session, None, None]:
 SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
+def load_pkcs12_keystore(pkcs12_file: str, password: str):
+    with open(pkcs12_file, 'rb') as f:
+        pkcs12_data = f.read()
 
-def get_current_user(session: SessionDep, token: TokenDep) -> User:
+    # PKCS12에서 키와 인증서 가져오기
+    private_key, certificate, additional_certificates = pkcs12.load_key_and_certificates(
+        pkcs12_data, password.encode(), backend=default_backend()
+    )
+
+    return private_key, certificate
+
+def get_current_user(access_token=Security(APIKeyHeader(name='Authentication'))) -> int:
     try:
+        private_key, certificate = load_pkcs12_keystore('/Users/iymaeng/Documents/private/born-to-run-api/oauth2runacerApi.p12', 'TnscjsgiD1004!')
+        public_key = certificate.public_key()
+
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+            jwt=access_token,
+            key=public_key,
+            algorithms=['RS256'],
+            options={"verify_aud": False},
         )
-        token_data = TokenPayload(**payload)
-    except (InvalidKeyTypeError, ValidationError):
+
+        user_id = payload['id']
+    except (InvalidTokenError, ValidationError) as e:
+        logging.error(f"Token validation failed: {e}")
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
+            detail=str(e),
         )
-    user = session.get(User, token_data.sub)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return user
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    return user_id
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
-
-
-def get_current_active_user(current_user: CurrentUser) -> User:
-    # TODO: admin, crew_admin access control
-    # if not current_user.is_superuser:
-    #     raise HTTPException(
-    #         status_code=403, detail="The user doesn't have enough privileges"
-    #     )
-    return current_user
+CurrentUserId = Annotated[int, Depends(get_current_user)]

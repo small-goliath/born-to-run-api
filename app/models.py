@@ -1,12 +1,12 @@
+from dataclasses import dataclass
 from typing import Optional
+from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import datetime
 
+from app.api.deps import SessionDep
+
 # TODO: Field setting
-# email: EmailStr = Field(unique=True, index=True, max_length=255)
-# is_active: bool = True
-# is_superuser: bool = False
-# full_name: str | None = Field(default=None, max_length=255)
 
 class CrewBase(SQLModel):
     crew_id: int = Field(primary_key=True)
@@ -17,9 +17,6 @@ class CrewBase(SQLModel):
 
 class CrewGlobal(CrewBase):
     image: Optional['ObjectStorage']
-
-class SearchCrewsAllResponse(CrewBase):
-    image_uri: Optional[str]
 
 class Crew(CrewBase, table=True):
     image_id: Optional[int]  = Field(
@@ -42,9 +39,25 @@ class ObjectStorage(ObjectStorageBase, table=True):
     crewImage: Optional[Crew] = Relationship(back_populates="image", cascade_delete=True)
     is_deleted: bool = False
 
+class SignInCommand(BaseModel):
+    kakao_auth_code: str
+
+class SignUpCommand(BaseModel):
+    my_user_id: int
+    user_name: str
+    crew_id: int
+    instagram_id: Optional[str]
+
+class SignInResult(BaseModel):
+    is_member: bool
+    access_token: str
+
+class SignUpResult(BaseModel):
+    name: str
+
 class UserBase(SQLModel):
     id: int = Field(primary_key=True)
-    sociald: str
+    social_id: str
     age_range: str
     name: str
     crew_id: int
@@ -57,6 +70,3 @@ class UserBase(SQLModel):
     
 class User(UserBase, table=True):
     is_deleted: bool = False
-
-class TokenPayload(SQLModel):
-    sub: str | None = None

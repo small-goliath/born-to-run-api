@@ -1,9 +1,11 @@
 from pydantic import BaseModel
-from app.api.deps import SessionDep
+from app.api.deps import CurrentUserId, SessionDep
 from aiocache import cached, Cache
-from app.models import CrewBase
+from app.api.routes.schemas import SignInRequest, SignUpRequest
+from app.models import CrewBase, SignInResult, SignUpResult
 import app.core.crew_service as crew_service
-import app.core.login_service as login_service
+import app.core.join_service as join_service
+import app.core.converter as converter
 
 def cache_key_builder(func, args=None):
     key_parts = [func.__name__]
@@ -28,10 +30,30 @@ def cache_key_builder(func, args=None):
 def cache_decorator(ttl=60*60):
     return cached(ttl=ttl, cache=Cache.MEMORY, key_builder=cache_key_builder)
 
+def clear_cache_decorator(func):
+    async def wrapper(*args, **kwargs):
+        await clear_cache()
+        return await func(*args, **kwargs)
+    return wrapper
+
+async def clear_cache():
+    cache = Cache(Cache.MEMORY)
+    await cache.clear()
+
+
+
 @cache_decorator()
 async def search_crews(session: SessionDep) -> CrewBase:
     return await crew_service.search_crews(session)
 
 @cache_decorator()
 async def get_kakao_auth_code() -> str:
-    return await login_service.get_kakao_auth_code()
+    return await join_service.get_kakao_auth_code()
+
+@clear_cache_decorator
+async def sign_in(request: SignInRequest) -> SignInResult:
+    return await join_service.sign_in(converter.signInRequest_to_signInCommand(request))
+
+@clear_cache_decorator
+async def sign_up(session: SessionDep, request: SignUpRequest, my_user_id: int) -> SignUpResult:
+    return await join_service.sign_up(session, converter.signUpRequest_to_signUpCommand(request, my_user_id))

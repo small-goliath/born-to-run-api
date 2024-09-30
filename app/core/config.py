@@ -42,18 +42,6 @@ class Settings(BaseSettings):
         return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
             self.FRONTEND_HOST
         ]
-    
-    KAKAO_AUTH_ROOT_URL: str
-    KAKAO_AUTH_CODE_PATH: str
-    KAKAO_CLIENT_ID: str
-    KAKAO_REDIRECT_URI: str
-    KAKAO_RESPONSE_TYPE: str
-    KAKAO_SCOPE: str
-
-    @computed_field
-    @property
-    def KAKAO_AUTH_CODE_URI(self) -> str:
-        return f"{self.KAKAO_AUTH_ROOT_URL}{self.KAKAO_AUTH_CODE_PATH}?client_id={self.KAKAO_CLIENT_ID}&redirect_uri={self.KAKAO_REDIRECT_URI}&response_type={self.KAKAO_RESPONSE_TYPE}&scope={self.KAKAO_SCOPE}"
 
     PROJECT_NAME: str = "runacer"
     SENTRY_DSN: HttpUrl | None = None
@@ -75,6 +63,25 @@ class Settings(BaseSettings):
             port=self.MIRIA_PORT,
             path=self.MIRIA_DB,
         )
+
+    KAKAO_AUTH_ROOT_URL: str
+    KAKAO_AUTH_CODE_PATH: str
+    KAKAO_CLIENT_ID: str
+    KAKAO_REDIRECT_URI: str
+    KAKAO_RESPONSE_TYPE: str
+    KAKAO_SCOPE: str
+
+    @computed_field
+    @property
+    def KAKAO_AUTH_CODE_URI(self) -> str:
+        return f"{self.KAKAO_AUTH_ROOT_URL}{self.KAKAO_AUTH_CODE_PATH}?client_id={self.KAKAO_CLIENT_ID}&redirect_uri={self.KAKAO_REDIRECT_URI}&response_type={self.KAKAO_RESPONSE_TYPE}&scope={self.KAKAO_SCOPE}"
+    
+    OAUTH2_HOST: str
+    OAUTH2_CLIENT_ID: str
+    OAUTH2_CLIENT_SECRET: str
+    OAUTH2_GRANT_TYPE: str
+    OAUTH2_SIGN_IN_PATH: str
+    OAUTH2_AUTH_TOKEN_PATH: str
 
 
 settings = Settings()
