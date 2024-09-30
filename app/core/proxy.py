@@ -1,13 +1,14 @@
 from pydantic import BaseModel
-from app.api.deps import CurrentUserId, SessionDep
+from app.api.deps import SessionDep
 from aiocache import cached, Cache
 from app.api.routes.schemas import SignInRequest, SignUpRequest
-from app.models import CrewBase, SignInResult, SignUpResult
+from app.models import CrewBase, SignInResult, SignUpResult, UserGlobal
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
+import app.core.user_service as user_service
 import app.core.converter as converter
 
-def cache_key_builder(func, args=None):
+def cache_key_builder(func, *args):
     key_parts = [func.__name__]
 
     if args is None:
@@ -57,3 +58,7 @@ async def sign_in(request: SignInRequest) -> SignInResult:
 @clear_cache_decorator
 async def sign_up(session: SessionDep, request: SignUpRequest, my_user_id: int) -> SignUpResult:
     return await join_service.sign_up(session, converter.signUpRequest_to_signUpCommand(request, my_user_id))
+
+@cache_decorator()
+async def get_user_detail(session: SessionDep, my_user_id: int) -> UserGlobal:
+    return await user_service.search_user_detail(session, my_user_id)

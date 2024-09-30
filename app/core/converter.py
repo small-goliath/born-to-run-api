@@ -1,8 +1,8 @@
 from app.api.deps import CurrentUserId, SessionDep
 from app.infrastructer.models import SignUpQuery
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, SignInCommand, SignInResult, SignUpCommand, SignUpResult
-from app.api.routes.schemas import SearchCrewsAllResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
+from app.models import Crew, CrewGlobal, SignInCommand, SignInResult, SignUpCommand, SignUpResult, User, UserGlobal
+from app.api.routes.schemas import SearchCrewsAllResponse, SearchMyDetailResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
 def crew_to_crewGlobal(source: list[Crew]) -> list[CrewGlobal]:
@@ -48,3 +48,38 @@ def signUpCommand_to_signUpQuery(source: SignUpCommand) -> SignUpQuery:
 
 def signUpResult_to_signUpResponse(source: SignUpResult) -> SignUpResponse:
     return SignUpResponse(name=source.name)
+
+def user_to_userGlobal(source: User) -> UserGlobal:
+    source = source[0]
+    return UserGlobal(id=source.id,
+                      social_id=source.social_id,
+                      age_range=source.age_range,
+                      name=source.name,
+                      birthday=source.birthday,
+                      gender=source.gender,
+                      instagram_id=source.instagram_id,
+                      last_login_at=source.last_login_at,
+                      yellow_card_qty=source.yellow_card_qty,
+                      crew=source.crew,
+                      image_uri=source.image.file_uri if source.image else None,
+                      is_admin=True if source.authority == "ADMIN" else False,
+                      is_manager=True if source.authority == "MANAGER" else False,
+                      is_gender_public=source.user_privacy.is_gender_public,
+                      is_birthday_public=source.user_privacy.is_birthday_public,
+                      is_instagram_id_public=source.user_privacy.is_instagram_id_public)
+
+def userGlobal_to_searchMyDetailResponse(source: UserGlobal) -> SearchMyDetailResponse:
+    return SearchMyDetailResponse(user_id=source.id,
+                                  user_name=source.name,
+                                  crew_name=source.crew.name,
+                                  age_range=source.age_range,
+                                  birthday=source.birthday,
+                                  gender=source.gender,
+                                  profile_image_uri=source.image_uri,
+                                  is_admin=source.is_admin,
+                                  is_manager=source.is_manager,
+                                  yellow_card_qty=source.yellow_card_qty,
+                                  instagram_uri=f"https://www.instagram.com/{source.instagram_id}",
+                                  is_gender_public=source.is_gender_public,
+                                  is_birthday_public=source.is_birthday_public,
+                                  is_instagram_id_public=source.is_instagram_id_public)

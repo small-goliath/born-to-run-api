@@ -25,3 +25,19 @@ class SignUpResponse(BaseModel):
 class SignInResponse(BaseModel):
     is_member: bool
     access_token: str
+
+class SearchMyDetailResponse(BaseModel):
+    user_id: int
+    user_name: str
+    crew_name: str
+    age_range: Optional[str]
+    birthday: Optional[str]
+    gender: Optional[str]
+    profile_image_uri: Optional[str]
+    is_admin: bool
+    is_manager: bool
+    yellow_card_qty: int
+    instagram_uri: Optional[str]
+    is_gender_public: bool
+    is_birthday_public: bool
+    is_instagram_id_public: bool
