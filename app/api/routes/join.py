@@ -17,10 +17,10 @@ async def get_kakao_auth_code() -> RedirectResponse:
 @router.post("/sign-in")
 async def sign_in(request: SignInRequest) -> SignInResponse:
     sign_in_result = await proxy.sign_in(request)
-    return converter.signInResult_to_signInResponse(sign_in_result)
+    return converter.to_signInResponse(sign_in_result)
     
 @router.post("/sign-up")
 async def sign_in(session: SessionDep, request: SignUpRequest, my_user_id=Depends(get_current_user)) -> SignUpResponse:
     sign_up_result = await proxy.sign_up(session, request, my_user_id)
-    return converter.signUpResult_to_signUpResponse(sign_up_result)
+    return converter.to_signUpResponse(sign_up_result)
     

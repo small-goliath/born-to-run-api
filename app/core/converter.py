@@ -1,11 +1,11 @@
 from app.api.deps import CurrentUserId, SessionDep
 from app.infrastructer.models import SignUpQuery
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, SignInCommand, SignInResult, SignUpCommand, SignUpResult, User, UserGlobal
-from app.api.routes.schemas import SearchCrewsAllResponse, SearchMyDetailResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
+from app.models import Crew, CrewGlobal, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, SignInCommand, SignInResult, SignUpCommand, SignUpResult, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
+from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
-def crew_to_crewGlobal(source: list[Crew]) -> list[CrewGlobal]:
+def to_crewGlobal(source: list[Crew]) -> list[CrewGlobal]:
     result = []
     for s in source:
         s = s[0]
@@ -17,7 +17,7 @@ def crew_to_crewGlobal(source: list[Crew]) -> list[CrewGlobal]:
         image=s.image))
     return result
 
-def crewGlobal_to_searchCrewsAllResponse(source: list[CrewGlobal]) -> list[SearchCrewsAllResponse]:
+def to_searchCrewsAllResponse(source: list[CrewGlobal]) -> list[SearchCrewsAllResponse]:
     result = []
     for s in source:
         result.append(SearchCrewsAllResponse(crew_id=s.crew_id,
@@ -28,28 +28,28 @@ def crewGlobal_to_searchCrewsAllResponse(source: list[CrewGlobal]) -> list[Searc
         image_uri=s.image.file_uri if s.image else None))
     return result
 
-def signInRequest_to_signInCommand(source: SignInRequest) -> SignInCommand:
+def to_signInCommand(source: SignInRequest) -> SignInCommand:
     return SignInCommand(kakao_auth_code=source.kakao_auth_code)
 
-def signInCommand_to_oautn2SignInRequest(source: SignInCommand) -> OAutn2SignInRequest:
+def to_oautn2SignInRequest(source: SignInCommand) -> OAutn2SignInRequest:
     return OAutn2SignInRequest(kakao_auth_code=source.kakao_auth_code)
 
-def oautn2TokenResponse_to_signInResult(sign_in_source: OAutn2SignInResponse, token_source: OAutn2TokenResponse) -> SignInResult:
+def to_signInResult(sign_in_source: OAutn2SignInResponse, token_source: OAutn2TokenResponse) -> SignInResult:
     return SignInResult(is_member=sign_in_source.is_member, access_token=token_source.access_token)
 
-def signInResult_to_signInResponse(source: SignInResult) -> SignInResponse:
+def to_signInResponse(source: SignInResult) -> SignInResponse:
     return SignInResponse(is_member=source.is_member, access_token=source.access_token)
 
-def signUpRequest_to_signUpCommand(source: SignUpRequest, my_user_id: int) -> SignUpCommand:
+def to_signUpCommand(source: SignUpRequest, my_user_id: int) -> SignUpCommand:
     return SignUpCommand(user_name=source.user_name, crew_id=source.crew_id, instagram_id=source.instagram_id, my_user_id=my_user_id)
 
-def signUpCommand_to_signUpQuery(source: SignUpCommand) -> SignUpQuery:
+def to_signUpQuery(source: SignUpCommand) -> SignUpQuery:
     return SignUpQuery(user_name=source.user_name, crew_id=source.crew_id, instagram_id=source.instagram_id, my_user_id=source.my_user_id)
 
-def signUpResult_to_signUpResponse(source: SignUpResult) -> SignUpResponse:
+def to_signUpResponse(source: SignUpResult) -> SignUpResponse:
     return SignUpResponse(name=source.name)
 
-def user_to_userGlobal(source: User) -> UserGlobal:
+def to_userGlobal(source: User) -> UserGlobal:
     source = source[0]
     return UserGlobal(id=source.id,
                       social_id=source.social_id,
@@ -68,7 +68,7 @@ def user_to_userGlobal(source: User) -> UserGlobal:
                       is_birthday_public=source.user_privacy.is_birthday_public,
                       is_instagram_id_public=source.user_privacy.is_instagram_id_public)
 
-def userGlobal_to_searchMyDetailResponse(source: UserGlobal) -> SearchMyDetailResponse:
+def to_searchMyDetailResponse(source: UserGlobal) -> SearchMyDetailResponse:
     return SearchMyDetailResponse(user_id=source.id,
                                   user_name=source.name,
                                   crew_name=source.crew.name,
@@ -83,3 +83,37 @@ def userGlobal_to_searchMyDetailResponse(source: UserGlobal) -> SearchMyDetailRe
                                   is_gender_public=source.is_gender_public,
                                   is_birthday_public=source.is_birthday_public,
                                   is_instagram_id_public=source.is_instagram_id_public)
+
+def to_modifyUserCommand(source: ModifyUserRequest, user_id: int) -> ModifyUserCommand:
+    return ModifyUserCommand(user_id=user_id,
+                             profile_image_id=source.profile_image_id,
+                             instagram_id=source.instagram_id)
+
+def to_modifyUserQuery(source: ModifyUserCommand, user_id: int) -> ModifyUserQuery:
+    return ModifyUserCommand(user_id=user_id,
+                             profile_image_id=source.profile_image_id,
+                             instagram_id=source.instagram_id)
+
+def to_ModifyUserPrivacyCommand(source: ModifyUserRequest, user_id: int) -> ModifyUserPrivacyCommand:
+    return ModifyUserPrivacyCommand(my_user_id=user_id,
+                                    is_gender_public=source.is_gender_public,
+                                    is_birthday_public=source.is_birthday_public,
+                                    is_instagram_id_public=source.is_instagram_id_public)
+
+def to_modifyUserPrivacyQuery(source: ModifyUserPrivacyCommand):
+    return ModifyUserPrivacyCommand(my_user_id=source.my_user_id,
+                                    is_gender_public=source.is_gender_public,
+                                    is_birthday_public=source.is_birthday_public,
+                                    is_instagram_id_public=source.is_instagram_id_public)
+
+def to_userPrivacyGlobal(source: UserPrivacy) -> UserPrivacyGlobal:
+    return UserPrivacyGlobal(my_user_id=source.user_id,
+                                    is_gender_public=source.is_gender_public,
+                                    is_birthday_public=source.is_birthday_public,
+                                    is_instagram_id_public=source.is_instagram_id_public)
+
+def to_searchUserPrivacyResponse(source: UserPrivacyGlobal) -> SearchUserPrivacyResponse:
+    return SearchUserPrivacyResponse(user_id=source.user_id,
+                                    is_gender_public=source.is_gender_public,
+                                    is_birthday_public=source.is_birthday_public,
+                                    is_instagram_id_public=source.is_instagram_id_public)

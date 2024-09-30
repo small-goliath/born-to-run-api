@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from app.api.deps import SessionDep
 from aiocache import cached, Cache
-from app.api.routes.schemas import SignInRequest, SignUpRequest
-from app.models import CrewBase, SignInResult, SignUpResult, UserGlobal
+from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
+from app.models import CrewBase, SignInResult, SignUpResult, UserGlobal, UserPrivacyGlobal
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
 import app.core.user_service as user_service
+import app.core.user_privacies_service as user_privacies_service
 import app.core.converter as converter
 
 def cache_key_builder(func, *args):
@@ -53,12 +54,28 @@ async def get_kakao_auth_code() -> str:
 
 @clear_cache_decorator
 async def sign_in(request: SignInRequest) -> SignInResult:
-    return await join_service.sign_in(converter.signInRequest_to_signInCommand(request))
+    command = converter.to_signInCommand(request)
+    return await join_service.sign_in(command)
 
 @clear_cache_decorator
 async def sign_up(session: SessionDep, request: SignUpRequest, my_user_id: int) -> SignUpResult:
-    return await join_service.sign_up(session, converter.signUpRequest_to_signUpCommand(request, my_user_id))
+    command = converter.to_signUpCommand(request, my_user_id)
+    return await join_service.sign_up(session, command)
 
 @cache_decorator()
-async def get_user_detail(session: SessionDep, my_user_id: int) -> UserGlobal:
-    return await user_service.search_user_detail(session, my_user_id)
+async def get_user_detail(session: SessionDep, user_id: int) -> UserGlobal:
+    return await user_service.search_user_detail(session, user_id)
+
+@clear_cache_decorator
+async def modify_user(session: SessionDep, user_id: int, request: ModifyUserRequest) -> str:
+    command = converter.to_modifyUserCommand(request, user_id)
+    return await user_service.modify_user(session, command)
+
+@clear_cache_decorator
+async def modify_user_privacy(session: SessionDep, request: ModifyUserRequest, my_user_id: int):
+    command = converter.ModifyUserPrivacyCommand(request, my_user_id)
+    return await user_privacies_service.modify_user_privacy(session, command)
+
+@cache_decorator()
+async def search_user_privacy(session: SessionDep, my_user_id: int) -> UserPrivacyGlobal:
+    return await user_privacies_service.search_user_privacy(session, my_user_id)

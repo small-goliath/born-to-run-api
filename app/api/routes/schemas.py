@@ -41,3 +41,21 @@ class SearchMyDetailResponse(BaseModel):
     is_gender_public: bool
     is_birthday_public: bool
     is_instagram_id_public: bool
+
+class ModifyUserRequest(BaseModel):
+    profile_image_id: Optional[int]
+    instagram_id: Optional[str]
+
+class ModifyUserResponse(BaseModel):
+    userName: str
+
+class ModifyUserPrivacyRequest(BaseModel):
+    isGenderPublic: bool
+    isBirthdayPublic: bool
+    isInstagramIdPublic: bool
+
+class SearchUserPrivacyResponse(BaseModel):
+    user_id: int
+    isGenderPublic: bool
+    isBirthdayPublic: bool
+    isInstagramIdPublic: bool

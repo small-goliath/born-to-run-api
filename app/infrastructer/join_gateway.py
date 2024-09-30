@@ -64,6 +64,6 @@ async def sign_up(session: SessionDep, request: SignUpQuery) -> SignUpResult:
 
     user.sqlmodel_update(user_data, update=extra_data)
     session.add(user)
-    session.commit()
+    await session.commit()
 
     return SignUpResult(name=user.name)

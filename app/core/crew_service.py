@@ -6,4 +6,4 @@ import app.core.converter as converter
 
 async def search_crews(session: SessionDep) -> list[CrewGlobal]:
     crews = await crew_gateway.search_crews(session)
-    return converter.crew_to_crewGlobal(crews)
+    return converter.to_crewGlobal(crews)

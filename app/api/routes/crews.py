@@ -11,4 +11,4 @@ router = APIRouter()
 @router.get("/")
 async def search_crews(session: SessionDep) -> list[SearchCrewsAllResponse]:
     crews = await proxy.search_crews(session)
-    return converter.crewGlobal_to_searchCrewsAllResponse(crews)
+    return converter.to_searchCrewsAllResponse(crews)

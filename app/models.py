@@ -124,3 +124,31 @@ class UserGlobal(UserBase):
     is_gender_public: bool
     is_birthday_public: bool
     is_instagram_id_public: bool
+
+class ModifyUserCommand(BaseModel):
+    user_id: int
+    profile_image_id: Optional[int]
+    instagram_id: Optional[str]
+
+class ModifyUserQuery(BaseModel):
+    user_id: int
+    profile_image_id: Optional[int]
+    instagram_id: Optional[str]
+
+class ModifyUserPrivacyCommand(BaseModel):
+    my_user_id: int
+    isGenderPublic: bool
+    isBirthdayPublic: bool
+    isInstagramIdPublic: bool
+
+class UserPrivacyGlobal(BaseModel):
+    user_id: int
+    is_gender_public: bool
+    is_birthday_public: bool
+    is_instagram_id_public: bool
+
+class ModifyUserPrivacyQuery(BaseModel):
+    user_id: int
+    is_gender_public: bool
+    is_birthday_public: bool
+    is_instagram_id_public: bool
