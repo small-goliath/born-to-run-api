@@ -40,7 +40,7 @@ def load_pkcs12_keystore(pkcs12_file: str, password: str):
 
 def get_current_user(access_token=Security(APIKeyHeader(name='Authentication'))) -> int:
     try:
-        private_key, certificate = load_pkcs12_keystore('/Users/iymaeng/Documents/private/born-to-run-api/oauth2runacerApi.p12', 'TnscjsgiD1004!')
+        private_key, certificate = load_pkcs12_keystore('../oauth2runacerApi.p12', settings.P12_SECRET_KEY)
         public_key = certificate.public_key()
 
         payload = jwt.decode(

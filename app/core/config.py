@@ -82,6 +82,6 @@ class Settings(BaseSettings):
     OAUTH2_GRANT_TYPE: str
     OAUTH2_SIGN_IN_PATH: str
     OAUTH2_AUTH_TOKEN_PATH: str
-
+    P12_SECRET_KEY: str
 
 settings = Settings()
