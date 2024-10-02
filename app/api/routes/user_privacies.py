@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from app.api.deps import SessionDep, get_current_user
 from app.api.routes.schemas import ModifyUserPrivacyRequest, SearchUserPrivacyResponse
@@ -10,6 +10,7 @@ router = APIRouter()
 @router.post("/privacy/user")
 async def modify_user_privacy(session: SessionDep, request: ModifyUserPrivacyRequest, my_user_id=Depends(get_current_user)):
     await proxy.modify_user_privacy(session, my_user_id, request)
+    return Response(status_code=200)
 
 @router.get("/privacy/user")
 async def search_user_privacy(session: SessionDep, my_user_id=Depends(get_current_user)) -> SearchUserPrivacyResponse:

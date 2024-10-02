@@ -84,4 +84,6 @@ class Settings(BaseSettings):
     OAUTH2_AUTH_TOKEN_PATH: str
     P12_SECRET_KEY: str
 
+    CDN_HOST: str
+
 settings = Settings()

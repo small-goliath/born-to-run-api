@@ -1,7 +1,7 @@
 from app.api.deps import CurrentUserId, SessionDep
 from app.infrastructer.models import SignUpQuery
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, SignInCommand, SignInResult, SignUpCommand, SignUpResult, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
+from app.models import Crew, CrewGlobal, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, SignInCommand, SignInResult, SignUpCommand, SignUpResult, UploadFileCommand, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
 from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
@@ -117,3 +117,8 @@ def to_searchUserPrivacyResponse(source: UserPrivacyGlobal) -> SearchUserPrivacy
                                     is_gender_public=source.is_gender_public,
                                     is_birthday_public=source.is_birthday_public,
                                     is_instagram_id_public=source.is_instagram_id_public)
+
+def to_uploadFileQuery(source: UploadFileCommand) -> UploadFileQuery:
+    return UploadFileQuery(user_id=source.user_id,
+                           bucket=source.bucket,
+                           file=source.file)

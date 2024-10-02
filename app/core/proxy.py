@@ -1,12 +1,15 @@
+from fastapi import UploadFile
 from pydantic import BaseModel
 from app.api.deps import SessionDep
 from aiocache import cached, Cache
 from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
-from app.models import CrewBase, SignInResult, SignUpResult, UserGlobal, UserPrivacyGlobal
+from app.consts import Bucket
+from app.models import CrewBase, SignInResult, SignUpResult, UploadFileCommand, UserGlobal, UserPrivacyGlobal
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
 import app.core.user_service as user_service
-import app.core.user_privacies_service as user_privacies_service
+import app.core.object_storage_service as object_storage_service
+import app.core.user_privacy_service as user_privacy_service
 import app.core.converter as converter
 
 def cache_key_builder(func, *args):
@@ -74,8 +77,13 @@ async def modify_user(session: SessionDep, user_id: int, request: ModifyUserRequ
 @clear_cache_decorator
 async def modify_user_privacy(session: SessionDep, request: ModifyUserRequest, my_user_id: int):
     command = converter.ModifyUserPrivacyCommand(request, my_user_id)
-    return await user_privacies_service.modify_user_privacy(session, command)
+    return await user_privacy_service.modify_user_privacy(session, command)
 
 @cache_decorator()
 async def search_user_privacy(session: SessionDep, my_user_id: int) -> UserPrivacyGlobal:
-    return await user_privacies_service.search_user_privacy(session, my_user_id)
+    return await user_privacy_service.search_user_privacy(session, my_user_id)
+
+@clear_cache_decorator
+async def upload_file(session: SessionDep, bucket: Bucket, file: UploadFile, my_user_id: int):
+    command = UploadFileCommand(user_id=my_user_id, bucket=bucket, file=file)
+    return await object_storage_service.upload_file(session, command)

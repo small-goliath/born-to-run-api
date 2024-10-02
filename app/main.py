@@ -41,7 +41,10 @@ async def set_body(request: Request, body: bytes):
     request._receive = receive
 
 def log_info(req_body, res_body):
-    req_body = req_body.decode('utf-8')
+    try:
+        req_body = req_body.decode('utf-8')
+    except UnicodeDecodeError:
+        req_body = "(...파일 업로드 요청...)"
     res_body = res_body.decode('utf-8')
 
     logging.info(f"request body: {req_body}")

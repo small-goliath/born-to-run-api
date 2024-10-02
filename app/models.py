@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
+from fastapi import UploadFile
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import datetime
 
 from app.api.deps import SessionDep
+from app.consts import Bucket
 
 # TODO: Field setting
 
@@ -33,7 +35,7 @@ class ObjectStorageBase(SQLModel):
     file_id: int = Field(primary_key=True)
     user_id: int
     file_uri: str
-    upload_at: datetime
+    upload_at: datetime = Field(default_factory=datetime.now)
 
 class ObjectStorage(ObjectStorageBase, table=True):
     __tablename__ = "object_storage"
@@ -152,3 +154,13 @@ class ModifyUserPrivacyQuery(BaseModel):
     is_gender_public: bool
     is_birthday_public: bool
     is_instagram_id_public: bool
+
+class UploadFileCommand(BaseModel):
+    user_id: int
+    file: UploadFile
+    bucket: Bucket
+
+class UploadFileQuery(BaseModel):
+    user_id: int
+    file: UploadFile
+    bucket: Bucket
