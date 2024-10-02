@@ -9,6 +9,11 @@ import app.core.proxy as proxy
 router = APIRouter()
 
 @router.post("/object-storage/{bucket}")
-async def modify_user_privacy(session: SessionDep, bucket: Bucket, file: UploadFile, my_user_id=Depends(get_current_user)):
+async def upload_file(session: SessionDep, bucket: Bucket, file: UploadFile, my_user_id=Depends(get_current_user)):
     await proxy.upload_file(session, bucket, file, my_user_id)
+    return Response(status_code=200)
+
+@router.delete("/object-storage/{bucket}/{file_id}")
+async def drop_file(session: SessionDep, bucket: Bucket, file_id: int, my_user_id=Depends(get_current_user)):
+    await proxy.drop_file(session, bucket, file_id, my_user_id)
     return Response(status_code=200)

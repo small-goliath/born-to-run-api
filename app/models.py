@@ -164,3 +164,13 @@ class UploadFileQuery(BaseModel):
     user_id: int
     file: UploadFile
     bucket: Bucket
+
+class DropFileCommand(BaseModel):
+    user_id: int
+    file_id: int
+    bucket: Bucket
+
+class DropFileQuery(BaseModel):
+    user_id: int
+    file_id: int
+    bucket: Bucket

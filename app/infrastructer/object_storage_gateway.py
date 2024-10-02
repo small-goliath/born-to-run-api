@@ -5,7 +5,7 @@ from sqlmodel import select
 
 from app.api.deps import SessionDep
 from app.core.config import settings
-from app.models import ModifyUserPrivacyQuery, ObjectStorage, UploadFileQuery, UserPrivacy
+from app.models import DropFileQuery, ModifyUserPrivacyQuery, ObjectStorage, UploadFileQuery, UserPrivacy
 import logging
 from minio import Minio, S3Error
 
@@ -49,3 +49,25 @@ async def upload_file(session: SessionDep, query: UploadFileQuery) -> str:
         raise HTTPException(status_code=500, detail=f"MinIO 서버 오류: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"파일 업로드 오류: {str(e)}")
+    
+async def drop_file(session: SessionDep, query: DropFileQuery):
+    try:
+        logging.debug(f"Try to drop file id: {query.file_id}")
+
+        statement = select(ObjectStorage).where(ObjectStorage.file_id == query.file_id)
+        objectStorage = session.exec(statement).one()
+
+        # TODO: 관리자 외 자기 파일만
+
+        if objectStorage is None:
+            raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+
+        minio_client.remove_object(query.bucket.value, objectStorage.file_uri.split('/')[-1])
+
+        session.delete(objectStorage)
+        session.commit()
+        logging.debug(f"SUCCESS to drop file: {objectStorage}")
+    except S3Error as e:
+        raise HTTPException(status_code=500, detail=f"MinIO 서버 오류: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"파일 삭제 오류: {str(e)}")
