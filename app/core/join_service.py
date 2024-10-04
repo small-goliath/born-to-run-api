@@ -1,9 +1,9 @@
+import app.core.converter as converter
+import app.infrastructer.join_gateway as join_gateway
 from app.api.deps import SessionDep
 from app.core.config import settings
 from app.models import SignInCommand, SignInResult, SignUpCommand, SignUpResult
-import app.core.converter as converter
-import app.core.converter as converter
-import app.infrastructer.join_gateway as join_gateway
+
 
 async def get_kakao_auth_code() -> str:
     return settings.KAKAO_AUTH_CODE_URI

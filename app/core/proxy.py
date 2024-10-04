@@ -1,16 +1,19 @@
+from aiocache import cached, Cache
 from fastapi import UploadFile
 from pydantic import BaseModel
-from app.api.deps import SessionDep
-from aiocache import cached, Cache
-from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
-from app.consts import Bucket
-from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, UserGlobal, UserPrivacyGlobal
+
+import app.core.converter as converter
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
-import app.core.user_service as user_service
 import app.core.object_storage_service as object_storage_service
 import app.core.user_privacy_service as user_privacy_service
-import app.core.converter as converter
+import app.core.user_service as user_service
+from app.api.deps import SessionDep
+from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
+from app.consts import Bucket
+from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, \
+    UserGlobal, UserPrivacyGlobal
+
 
 def cache_key_builder(func, *args):
     key_parts = [func.__name__]

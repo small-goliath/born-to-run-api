@@ -1,14 +1,15 @@
-from dataclasses import asdict
 import logging
+from dataclasses import asdict
 
+import httpx
 from fastapi import HTTPException
 from sqlmodel import select
+
 from app.api.deps import SessionDep
 from app.core.config import settings
-import httpx
-
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenRequest, OAutn2TokenResponse
 from app.models import SignUpQuery, SignUpResult, User
+
 
 async def sign_in(request: OAutn2SignInRequest) -> OAutn2SignInResponse:
     async with httpx.AsyncClient() as client:

@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from app.api.deps import SessionDep
-from app.api.routes.schemas import SearchCrewsAllResponse
 import app.core.converter as converter
 import app.core.proxy as proxy
+from app.api.deps import SessionDep
+from app.api.routes.schemas import SearchCrewsAllResponse
 
 router = APIRouter()
 

@@ -1,13 +1,15 @@
-import sentry_sdk
 import logging
+
+import sentry_sdk
 from fastapi import FastAPI, Response, Request
 from fastapi.routing import APIRoute
+from starlette.background import BackgroundTask
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import Message
-from starlette.background import BackgroundTask
 
 from app.api.main import api_router
 from app.core.config import settings
+
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"

@@ -1,8 +1,10 @@
+import logging
+
 from sqlmodel import select
 
 from app.api.deps import SessionDep
 from app.models import ModifyUserPrivacyQuery, UserPrivacy
-import logging
+
 
 async def modify_user_privacy(session: SessionDep, query: ModifyUserPrivacyQuery):
     statement = select(UserPrivacy).where(UserPrivacy.user_id == query.my_user_id)
