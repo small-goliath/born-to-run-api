@@ -1,5 +1,5 @@
 from app.api.deps import SessionDep
-from app.models import DropFileCommand, ModifyUserPrivacyCommand, UploadFileCommand, UploadFileGlobal, UserPrivacyGlobal
+from app.models import DropFileCommand, UploadFileCommand, UploadFileGlobal
 import app.infrastructer.object_storage_gateway as object_storage_gateway
 import app.core.converter as converter
 

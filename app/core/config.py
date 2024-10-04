@@ -86,4 +86,8 @@ class Settings(BaseSettings):
 
     CDN_HOST: str
 
+    MINIO_ENDPOINT: str
+    MINIO_ACCESS_KEY: str
+    MINIO_SECRET_KEY: str
+
 settings = Settings()

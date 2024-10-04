@@ -1,11 +1,8 @@
-from dataclasses import dataclass
 from typing import Optional
 from fastapi import UploadFile
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import datetime
-
-from app.api.deps import SessionDep
 from app.consts import Bucket
 
 # TODO: Field setting, index setting

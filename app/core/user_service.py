@@ -1,6 +1,5 @@
-import logging
 from app.api.deps import SessionDep
-from app.models import CrewGlobal, ModifyUserCommand, ModifyUserPrivacyCommand, UserGlobal
+from app.models import ModifyUserCommand, UserGlobal
 import app.infrastructer.user_gateway as user_gateway
 import app.core.converter as converter
 

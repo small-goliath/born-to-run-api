@@ -1,4 +1,3 @@
-import logging
 from app.api.deps import SessionDep
 from app.models import CrewGlobal
 import app.infrastructer.crew_gateway as crew_gateway

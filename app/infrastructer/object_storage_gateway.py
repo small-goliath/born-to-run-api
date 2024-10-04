@@ -5,21 +5,18 @@ from sqlmodel import select
 
 from app.api.deps import SessionDep
 from app.core.config import settings
-from app.models import Authority, DropFileQuery, ModifyUserPrivacyQuery, ObjectStorage, UploadFileGlobal, UploadFileQuery, User, UserPrivacy
+from app.models import Authority, DropFileQuery, ObjectStorage, UploadFileQuery, User
 import logging
 from minio import Minio, S3Error
 
-# TODO: 비즈니스로직을 service layer에 옮기기
-
 minio_client = Minio(
-            "124.58.209.123:9000",  # Minio 서버의 엔드포인트
-            access_key="c4XAIlNhnNEcuUZud5WT",  # 액세스 키
-            secret_key="83fz49gfdSQjPDCok7jdTaOCwuujuMLTeVccJr5Q",  # 비밀 키
+            settings.MINIO_ENDPOINT,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
             secure=False
         )
 
 async def upload_file(session: SessionDep, query: UploadFileQuery) -> ObjectStorage:
-    # TODO: upload
     logging.debug(f"Try to upload file name: {query.file.filename}")
 
     try:

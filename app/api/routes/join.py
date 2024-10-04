@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 
-from app.api.deps import CurrentUserId, SessionDep, get_current_user
+from app.api.deps import SessionDep, get_current_user
 from app.api.routes.schemas import SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
 import app.core.proxy as proxy
 import app.core.converter as converter

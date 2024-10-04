@@ -1,4 +1,3 @@
-from app.api.deps import CurrentUserId, SessionDep
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
 from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
 from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse
