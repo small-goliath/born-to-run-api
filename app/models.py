@@ -8,7 +8,7 @@ from datetime import datetime
 from app.api.deps import SessionDep
 from app.consts import Bucket
 
-# TODO: Field setting
+# TODO: Field setting, index setting
 
 class CrewBase(SQLModel):
     crew_id: int = Field(primary_key=True)
@@ -21,26 +21,25 @@ class CrewGlobal(CrewBase):
     image: Optional['ObjectStorage']
 
 class Crew(CrewBase, table=True):
-    image_id: Optional[int]  = Field(
+    image_id: Optional[int] = Field(
         default=0,
-        foreign_key="object_storage.file_id",
-        nullable=True,
-        ondelete="CASCADE"
+        foreign_key="object_storage.file_id"
     )
-    image: Optional['ObjectStorage'] = Relationship(back_populates="crew_image")
+    image: Optional['ObjectStorage'] = Relationship(back_populates="crew_image", sa_relationship_kwargs=dict(foreign_keys="[Crew.image_id]"))
     user: Optional['User'] = Relationship(back_populates="crew")
     is_deleted: bool = False
 
 class ObjectStorageBase(SQLModel):
     file_id: int = Field(primary_key=True)
-    user_id: int
     file_uri: str
     upload_at: datetime = Field(default_factory=datetime.now)
 
 class ObjectStorage(ObjectStorageBase, table=True):
     __tablename__ = "object_storage"
-    crew_image: Optional[Crew] = Relationship(back_populates="image", cascade_delete=True)
-    user_image: Optional['User'] = Relationship(back_populates="image", cascade_delete=True)
+    crew_image: Optional[Crew] = Relationship(back_populates="image")
+    user_image: Optional['User'] = Relationship(back_populates="image", sa_relationship_kwargs=dict(foreign_keys="[User.image_id]"))
+    user_id: int = Field(foreign_key="user.id")
+    user: 'User' = Relationship(back_populates="object_storages", sa_relationship_kwargs=dict(foreign_keys="[ObjectStorage.user_id]"))
     is_deleted: bool = False
 
 class SignInCommand(BaseModel):
@@ -79,12 +78,10 @@ class UserPrivacyBase(SQLModel):
 class UserPrivacy(UserPrivacyBase, table=True):
   __tablename__ = "user_privacy"
   user_id: int = Field(
-        default=0,
-        foreign_key="user.id",
-        nullable=True,
-        ondelete="CASCADE"
+      default=0,
+      foreign_key="user.id"
     )
-  user: 'User' = Relationship(back_populates="user_privacy")
+  user: 'User' = Relationship(back_populates="user_privacy", sa_relationship_kwargs=dict(foreign_keys="[UserPrivacy.user_id]"))
     
 class AuthorityBase(SQLModel):
     id: int = Field(primary_key=True)
@@ -93,29 +90,24 @@ class AuthorityBase(SQLModel):
 class Authority(AuthorityBase, table=True):
     user_id: int = Field(
         default=0,
-        foreign_key="user.id",
-        nullable=True,
-        ondelete="CASCADE"
+        foreign_key="user.id"
     )
-    user: 'User' = Relationship(back_populates="authority")
+    user: 'User' = Relationship(back_populates="authority", sa_relationship_kwargs=dict(foreign_keys="[Authority.user_id]"))
 
 class User(UserBase, table=True):
-    crew_id: int = Field(
+    crew_id: Optional[int] = Field(
         default=0,
-        foreign_key="crew.crew_id",
-        nullable=True,
-        ondelete="CASCADE"
+        foreign_key="crew.crew_id"
     )
     image_id: Optional[int] = Field(
         default=0,
-        foreign_key="object_storage.file_id",
-        nullable=True,
-        ondelete="CASCADE"
+        foreign_key="object_storage.file_id"
     )
-    crew: Crew = Relationship(back_populates="user")
-    image: Optional[ObjectStorage] = Relationship(back_populates="user_image")
+    crew: Crew = Relationship(back_populates="user", sa_relationship_kwargs=dict(foreign_keys="[User.crew_id]"))
+    image: Optional[ObjectStorage] = Relationship(back_populates="user_image", sa_relationship_kwargs=dict(foreign_keys="[User.image_id]"))
     user_privacy: UserPrivacy = Relationship(back_populates="user")
-    authority: Authority = Relationship(back_populates="user")
+    authority: list[Authority] = Relationship(back_populates="user")
+    object_storages: Optional[list[ObjectStorage]] = Relationship(back_populates="user", sa_relationship_kwargs=dict(foreign_keys="[ObjectStorage.user_id]"))
     is_deleted: bool = False
 
 class UserGlobal(UserBase):

@@ -5,9 +5,11 @@ from sqlmodel import select
 
 from app.api.deps import SessionDep
 from app.core.config import settings
-from app.models import DropFileQuery, ModifyUserPrivacyQuery, ObjectStorage, UploadFileQuery, UserPrivacy
+from app.models import Authority, DropFileQuery, ModifyUserPrivacyQuery, ObjectStorage, UploadFileQuery, User, UserPrivacy
 import logging
 from minio import Minio, S3Error
+
+# TODO: 비즈니스로직을 service layer에 옮기기
 
 minio_client = Minio(
             "124.58.209.123:9000",  # Minio 서버의 엔드포인트
@@ -51,23 +53,53 @@ async def upload_file(session: SessionDep, query: UploadFileQuery) -> str:
         raise HTTPException(status_code=500, detail=f"파일 업로드 오류: {str(e)}")
     
 async def drop_file(session: SessionDep, query: DropFileQuery):
-    try:
-        logging.debug(f"Try to drop file id: {query.file_id}")
+    logging.debug(f"Try to drop file id: {query.file_id}")
 
-        statement = select(ObjectStorage).where(ObjectStorage.file_id == query.file_id)
-        objectStorage = session.exec(statement).one()
+    statement = select(ObjectStorage, User).select_from(ObjectStorage).join(User, onclause=ObjectStorage.user_id == User.id).join(Authority, onclause=User.id == Authority.user_id).where(ObjectStorage.file_id == query.file_id)
 
-        # TODO: 관리자 외 자기 파일만
 
-        if objectStorage is None:
-            raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+    results = session.exec(statement).one_or_none()
+    logging.debug(f"selected objectStorage row: {results}")
 
-        minio_client.remove_object(query.bucket.value, objectStorage.file_uri.split('/')[-1])
+    # TODO: 관리자 외 자기 파일만
 
-        session.delete(objectStorage)
-        session.commit()
-        logging.debug(f"SUCCESS to drop file: {objectStorage}")
-    except S3Error as e:
-        raise HTTPException(status_code=500, detail=f"MinIO 서버 오류: {str(e)}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"파일 삭제 오류: {str(e)}")
+    if results is None:
+        raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+
+    objectStorage = results[0]
+    user = results[1]
+    authorities = user.authority
+
+    if query.user_id != user.id:
+        for authority in authorities:
+            if "ADMIN" not in authority.authority:
+                raise HTTPException(status_code=400, detail="관리자 외 본인의 파일만 제거할 수 있습니다.")
+
+    minio_client.remove_object(query.bucket.value, objectStorage.file_uri.split('/')[-1])
+
+    session.delete(objectStorage)
+    session.commit()
+
+    logging.debug(f"SUCCESS to drop file: {objectStorage}")
+    # try:
+    #     logging.debug(f"Try to drop file id: {query.file_id}")
+
+    #     statement = select(ObjectStorage, User, Authority).select_from(ObjectStorage).where(ObjectStorage.file_id == query.file_id).join(User).join(Authority)
+    #     objectStorage = session.exec(statement).one()
+
+    #     # TODO: 관리자 외 자기 파일만
+
+    #     if objectStorage is None:
+    #         raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+
+    #     minio_client.remove_object(query.bucket.value, objectStorage.file_uri.split('/')[-1])
+
+    #     session.delete(objectStorage)
+    #     session.commit()
+
+    #     logging.debug(f"SUCCESS to drop file: {objectStorage}")
+    # except S3Error as e:
+    #     logging.error(e)
+    #     raise HTTPException(status_code=500, detail=f"MinIO 서버 오류: {str(e)}")
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"파일 삭제 오류: {str(e)}")

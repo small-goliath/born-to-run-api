@@ -62,8 +62,8 @@ def to_userGlobal(source: User) -> UserGlobal:
                       yellow_card_qty=source.yellow_card_qty,
                       crew=source.crew,
                       image_uri=source.image.file_uri if source.image else None,
-                      is_admin=True if source.authority == "ADMIN" else False,
-                      is_manager=True if source.authority == "MANAGER" else False,
+                      is_admin=True if "ADMIN" in source.authority else False,
+                      is_manager=True if "MANAGER" in source.authority else False,
                       is_gender_public=source.user_privacy.is_gender_public,
                       is_birthday_public=source.user_privacy.is_birthday_public,
                       is_instagram_id_public=source.user_privacy.is_instagram_id_public)
