@@ -59,3 +59,8 @@ class SearchUserPrivacyResponse(BaseModel):
     isGenderPublic: bool
     isBirthdayPublic: bool
     isInstagramIdPublic: bool
+
+class UploadFileResponse(BaseModel):
+    file_id: int
+    file_uri: str
+    user_id: int

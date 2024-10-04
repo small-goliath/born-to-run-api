@@ -124,6 +124,12 @@ class ModifyUserCommand(BaseModel):
     profile_image_id: Optional[int]
     instagram_id: Optional[str]
 
+class SignUpQuery(BaseModel):
+    my_user_id: int
+    user_name: str
+    crew_id: int
+    instagram_id: Optional[str]
+
 class ModifyUserQuery(BaseModel):
     user_id: int
     profile_image_id: Optional[int]
@@ -156,6 +162,12 @@ class UploadFileQuery(BaseModel):
     user_id: int
     file: UploadFile
     bucket: Bucket
+
+class UploadFileGlobal(BaseModel):
+    file_id: int
+    file_uri: str
+    user_id: int
+    
 
 class DropFileCommand(BaseModel):
     user_id: int

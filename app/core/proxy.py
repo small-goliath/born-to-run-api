@@ -4,7 +4,7 @@ from app.api.deps import SessionDep
 from aiocache import cached, Cache
 from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
 from app.consts import Bucket
-from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UserGlobal, UserPrivacyGlobal
+from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, UserGlobal, UserPrivacyGlobal
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
 import app.core.user_service as user_service
@@ -84,7 +84,7 @@ async def search_user_privacy(session: SessionDep, my_user_id: int) -> UserPriva
     return await user_privacy_service.search_user_privacy(session, my_user_id)
 
 @clear_cache_decorator
-async def upload_file(session: SessionDep, bucket: Bucket, file: UploadFile, my_user_id: int):
+async def upload_file(session: SessionDep, bucket: Bucket, file: UploadFile, my_user_id: int) -> UploadFileGlobal:
     command = UploadFileCommand(user_id=my_user_id, bucket=bucket, file=file)
     return await object_storage_service.upload_file(session, command)
 

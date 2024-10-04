@@ -1,8 +1,7 @@
 from app.api.deps import CurrentUserId, SessionDep
-from app.infrastructer.models import SignUpQuery
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, SignInCommand, SignInResult, SignUpCommand, SignUpResult, UploadFileCommand, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
-from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse
+from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, ModifyUserCommand, ModifyUserPrivacyCommand, ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
+from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
 def to_crewGlobal(source: list[Crew]) -> list[CrewGlobal]:
@@ -122,6 +121,16 @@ def to_uploadFileQuery(source: UploadFileCommand) -> UploadFileQuery:
     return UploadFileQuery(user_id=source.user_id,
                            bucket=source.bucket,
                            file=source.file)
+
+def to_uploadFileGlobal(source: ObjectStorage) -> UploadFileGlobal:
+    return UploadFileGlobal(user_id=source.user_id,
+                            file_id=source.file_id,
+                            file_uri=source.file_uri)
+
+def to_uploadFileResponse(source: UploadFileGlobal) -> UploadFileResponse:
+    return UploadFileResponse(user_id=source.user_id,
+                              file_id=source.file_id,
+                              file_uri=source.file_uri)
 
 def to_dropFileQuery(source: DropFileCommand) -> DropFileQuery:
     return DropFileQuery(user_id=source.user_id,
