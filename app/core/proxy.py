@@ -22,7 +22,9 @@ def cache_key_builder(func, *args):
     if args is None:
         return "".join(key_parts)
 
-    for arg in args:  
+    for arg in args:
+        print("================================")
+        print(arg)
         if isinstance(arg, BaseModel):  
             # BaseModel을 상속받는 경우, 속성을 사전 형태로 가져와서 정렬  
             arg_dump = arg.model_dump()  
@@ -101,3 +103,8 @@ async def drop_file(session: SessionDep, bucket: Bucket, file_id: int, my_user_i
 async def search_marathons(session: SessionDep, request: SearchMarathonsRequest, my_user_id: int) -> list[MarathonGlobal]:
     command = converter.to_searchMarathonsCommand(request, my_user_id)
     return await marathon_service.search_marathons(session, command)
+
+# @cache_decorator()
+# async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_id: int) -> list[MarathonGlobal]:
+    # command = converter.to_searchMarathonsCommand(marathon_id, my_user_id)
+    # return await marathon_service.search_marathons(session, command)

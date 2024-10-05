@@ -8,11 +8,11 @@ from app.api.routes.schemas import SearchMarathonsRequest
 router = APIRouter()
 
 @router.get("")
-async def search_marathons(session: SessionDep, my_user_id=CurrentUserId, request: SearchMarathonsRequest = None):
+async def search_marathons(session: SessionDep, my_user_id: CurrentUserId, request: SearchMarathonsRequest = None):
     marathons = await proxy.search_marathons(session, request, my_user_id)
     return converter.to_SearchMarathonsResponse(marathons)
 
-@router.get("")
-async def search_marathons(session: SessionDep, my_user_id=CurrentUserId, request: SearchMarathonsRequest = None):
-    marathons = await proxy.search_marathons(session, request, my_user_id)
-    return converter.to_SearchMarathonsResponse(marathons)
+# @router.get("/{marathon_id}")
+# async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_id: CurrentUserId):
+#     marathons = await proxy.search_marathon_detail(session, marathon_id, my_user_id)
+#     return converter.to_SearchMarathonsResponse(marathons)
