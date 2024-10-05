@@ -1,9 +1,11 @@
-from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMyDetailResponse, \
-    SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse
+from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMarathonsResponse, SearchMyDetailResponse, \
+    SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse, \
+    SearchMarathonsRequest
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, ModifyUserCommand, ModifyUserPrivacyCommand, \
+from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, ModifyUserPrivacyCommand, \
     ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, \
-    UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal
+    UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal, \
+    SearchMarathonsCommand, SearchMarathonsQuery, MarathonGlobal, Marathon
 
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
@@ -139,3 +141,54 @@ def to_dropFileQuery(source: DropFileCommand) -> DropFileQuery:
     return DropFileQuery(user_id=source.user_id,
                         bucket=source.bucket,
                         file_id=source.file_id)
+
+def to_searchMarathonsCommand(source: SearchMarathonsRequest, my_user_id: int) -> SearchMarathonsCommand:
+    if source is None:
+        return SearchMarathonsCommand(my_user_id=my_user_id,
+                                  courses=None,
+                                  locations=None)
+    
+    return SearchMarathonsCommand(my_user_id=my_user_id,
+                                  courses=source.courses,
+                                  locations=source.locations)
+
+def to_searchMarathonsQuery(source: SearchMarathonsCommand) -> SearchMarathonsQuery:
+    return SearchMarathonsQuery(my_user_id=source.my_user_id,
+                                  courses=source.courses,
+                                  locations=source.locations)
+
+def to_marathonGlobal(source1: list[Marathon], source2: list[MarathonBookmark]) -> list[MarathonGlobal]:
+    result = []
+    for s in source1:
+        result.append(MarathonGlobal(
+            id = s.id,
+            title = s.title,
+            owner = s.owner,
+            email = s.email,
+            schedule = s.schedule,
+            contact = s.contact,
+            course = s.course,
+            location = s.location,
+            venue = s.venue,
+            host = s.host,
+            duration = s.duration,
+            homepage = s.homepage,
+            venue_detail = s.venue_detail,
+            remark = s.remark,
+            registered_at = s.registered_at,
+            is_my_bookmark=any(bookmark.marathon_id == s.id for bookmark in source2)
+        ))
+    return result
+
+def to_SearchMarathonsResponse(source: list[MarathonGlobal]) -> SearchMarathonsResponse:
+    result = []
+    for s in source:
+        result.append(SearchMarathonsResponse(marathon_id = s.id,
+        title = s.title,
+        schedule = s.schedule,
+        venue = s.venue,
+        course = s.course,
+        is_bookmarking=s.is_my_bookmark
+    ))
+        
+    return result

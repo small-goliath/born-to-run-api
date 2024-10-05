@@ -5,14 +5,15 @@ from pydantic import BaseModel
 import app.core.converter as converter
 import app.core.crew_service as crew_service
 import app.core.join_service as join_service
+import app.core.marathon_service as marathon_service
 import app.core.object_storage_service as object_storage_service
 import app.core.user_privacy_service as user_privacy_service
 import app.core.user_service as user_service
 from app.api.deps import SessionDep
-from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest
+from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest, SearchMarathonsRequest
 from app.consts import Bucket
 from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, \
-    UserGlobal, UserPrivacyGlobal
+    UserGlobal, UserPrivacyGlobal, MarathonGlobal
 
 
 def cache_key_builder(func, *args):
@@ -95,3 +96,8 @@ async def upload_file(session: SessionDep, bucket: Bucket, file: UploadFile, my_
 async def drop_file(session: SessionDep, bucket: Bucket, file_id: int, my_user_id: int):
     command = DropFileCommand(user_id=my_user_id, bucket=bucket, file_id=file_id)
     return await object_storage_service.drop_file(session, command)
+
+@cache_decorator()
+async def search_marathons(session: SessionDep, request: SearchMarathonsRequest, my_user_id: int) -> list[MarathonGlobal]:
+    command = converter.to_searchMarathonsCommand(request, my_user_id)
+    return await marathon_service.search_marathons(session, command)

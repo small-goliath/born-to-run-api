@@ -17,7 +17,7 @@ async def search_user_detail(session: SessionDep, user_id: int) -> SearchMyDetai
     user = await proxy.get_user_detail(session, user_id)
     return converter.to_searchMyDetailResponse(user)
 
-@router.post("/{user_id: int}")
-async def modify_user(session: SessionDep, user_id: int, request: ModifyUserRequest) -> ModifyUserResponse:
+@router.put("/my")
+async def modify_user(session: SessionDep, request: ModifyUserRequest, user_id=Depends(get_current_user)) -> ModifyUserResponse:
     modified_user_name = await proxy.modify_user(session, user_id, request)
     return ModifyUserResponse(userName=modified_user_name)

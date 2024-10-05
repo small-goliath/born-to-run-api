@@ -5,7 +5,7 @@ from typing import Annotated
 import jwt
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import pkcs12
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
@@ -38,29 +38,42 @@ def load_pkcs12_keystore(pkcs12_file: str, password: str):
 
     return private_key, certificate
 
-def get_current_user(access_token=Security(APIKeyHeader(name='Authentication'))) -> int:
+REQUIRED_LOGIN_APIS: dict[str, list[str]] = {
+        "GET": ["/api/v1/users/my", "/api/v1/privacy/user"],
+        "POST": ["/api/v1/join/sign-up", "/api/v1/token", "/api/v1/object_storages"],
+        "PUT": ["/api/v1/users/my", "/api/v1/privacy/user"],
+        "DELETE": ["/api/v1/object_storages"]
+}
+
+def get_current_user(request: Request, access_token=Security(APIKeyHeader(name='Authentication', auto_error=False))) -> int:
     try:
         private_key, certificate = load_pkcs12_keystore('../oauth2runacerApi.p12', settings.P12_SECRET_KEY)
         public_key = certificate.public_key()
 
-        payload = jwt.decode(
-            jwt=access_token,
-            key=public_key,
-            algorithms=['RS256'],
-            options={"verify_aud": False},
-        )
+        payload = None
+        if access_token is not None:
+            payload = jwt.decode(
+                jwt=access_token,
+                key=public_key,
+                algorithms=['RS256'],
+                options={"verify_aud": False},
+            )
 
-        user_id = payload['id']
+        user_id = -1 if payload is None else payload['id']
     except (InvalidTokenError, ValidationError) as e:
-        logging.error(f"Token validation failed: {e}")
+        if request.url.path in REQUIRED_LOGIN_APIS.get(request.method):
+            logging.error(f"Token validation failed: {e}")
 
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e),
-        )
-    
-    if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=str(e),
+            )
+        
+        return -1
+
+    if user_id == -1 and request.url.path in REQUIRED_LOGIN_APIS.get(request.method):
         raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    
     return user_id
 
 

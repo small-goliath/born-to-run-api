@@ -108,6 +108,7 @@ class User(UserBase, table=True):
     user_privacy: UserPrivacy = Relationship(back_populates="user")
     authority: list[Authority] = Relationship(back_populates="user")
     object_storages: Optional[list[ObjectStorage]] = Relationship(back_populates="user", sa_relationship_kwargs=dict(foreign_keys="[ObjectStorage.user_id]"))
+    marathon_bookmarks: Optional[list['MarathonBookmark']] = Relationship(back_populates="user", sa_relationship_kwargs=dict(foreign_keys="[MarathonBookmark.user_id]"))
     is_deleted: bool = False
 
 class UserGlobal(UserBase):
@@ -178,3 +179,71 @@ class DropFileQuery(BaseModel):
     user_id: int
     file_id: int
     bucket: Bucket
+
+class SearchMarathonsCommand(BaseModel):
+    my_user_id: int
+    locations: Optional[list[str]]
+    courses: Optional[list[str]]
+
+class MarathonGlobal(BaseModel):
+    id: int
+    title: Optional[str]
+    owner: Optional[str]
+    email: Optional[str]
+    schedule: Optional[str]
+    contact: Optional[str]
+    course: Optional[str]
+    location: Optional[str]
+    venue: Optional[str]
+    host: Optional[str]
+    duration: Optional[str]
+    homepage: Optional[str]
+    venue_detail: Optional[str]
+    remark: Optional[str]
+    registered_at: datetime
+    is_my_bookmark: bool
+
+class SearchMarathonsQuery(BaseModel):
+    my_user_id: int
+    locations: Optional[list[str]]
+    courses: Optional[list[str]]
+
+class MarathonBase(SQLModel):
+    id: int = Field(primary_key=True)
+    title: str
+    owner: str
+    email: str
+    schedule: str
+    contact: str
+    course: str
+    location: str
+    venue: str
+    host: str
+    duration: str
+    homepage: str
+    venue_detail: str
+    remark: str
+    registered_at: datetime
+    is_deleted: bool
+
+class Marathon(MarathonBase, table=True):
+    marathon_bookmarks: list['MarathonBookmark'] = Relationship(back_populates="marathon")
+
+class MarathonBookmarkBase(SQLModel):
+    bookmark_id: int = Field(primary_key=True)
+    registered_at: datetime
+    updated_at: datetime
+    is_deleted: bool
+
+class MarathonBookmark(MarathonBookmarkBase, table=True):
+    __tablename__ = "marathon_bookmark"
+    user_id: int = Field(
+        default=0,
+        foreign_key="user.id"
+    )
+    marathon_id: int = Field(
+        default=0,
+        foreign_key="marathon.id"
+    )
+    marathon: Marathon = Relationship(back_populates="marathon_bookmarks", sa_relationship_kwargs=dict(foreign_keys="[MarathonBookmark.marathon_id]"))
+    user: User = Relationship(back_populates="marathon_bookmarks", sa_relationship_kwargs=dict(foreign_keys="[MarathonBookmark.user_id]"))

@@ -66,3 +66,15 @@ class UploadFileResponse(BaseModel):
     file_id: int
     file_uri: str
     user_id: int
+
+class SearchMarathonsRequest(BaseModel):
+    locations: Optional[list[str]]
+    courses: Optional[list[str]]
+
+class SearchMarathonsResponse(BaseModel):
+    marathon_id: int
+    title: Optional[str]
+    schedule: Optional[str]
+    venue: Optional[str]
+    course: Optional[str]
+    is_bookmarking: bool
