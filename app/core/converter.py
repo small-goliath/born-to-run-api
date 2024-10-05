@@ -2,10 +2,12 @@ from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, Se
     SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse, \
     SearchMarathonsRequest
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, ModifyUserPrivacyCommand, \
+from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, \
+    ModifyUserPrivacyCommand, \
     ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, \
     UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal, \
-    SearchMarathonsCommand, SearchMarathonsQuery, MarathonGlobal, Marathon
+    SearchMarathonsCommand, SearchMarathonsQuery, MarathonGlobal, Marathon, SearchMarathonDetailCommand, \
+    SearchMarathonDetailQuery, SearchMarathonDetailResponse
 
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
@@ -157,7 +159,7 @@ def to_searchMarathonsQuery(source: SearchMarathonsCommand) -> SearchMarathonsQu
                                   courses=source.courses,
                                   locations=source.locations)
 
-def to_marathonGlobal(source1: list[Marathon], source2: list[MarathonBookmark]) -> list[MarathonGlobal]:
+def to_marathonGlobals(source1: list[Marathon], source2: list[MarathonBookmark]) -> list[MarathonGlobal]:
     result = []
     for s in source1:
         result.append(MarathonGlobal(
@@ -180,6 +182,26 @@ def to_marathonGlobal(source1: list[Marathon], source2: list[MarathonBookmark]) 
         ))
     return result
 
+def to_marathonGlobal(source1: Marathon, source2: MarathonBookmark) -> MarathonGlobal:
+    return MarathonGlobal(
+        id = source1.id,
+        title = source1.title,
+        owner = source1.owner,
+        email = source1.email,
+        schedule = source1.schedule,
+        contact = source1.contact,
+        course = source1.course,
+        location = source1.location,
+        venue = source1.venue,
+        host = source1.host,
+        duration = source1.duration,
+        homepage = source1.homepage,
+        venue_detail = source1.venue_detail,
+        remark = source1.remark,
+        registered_at = source1.registered_at,
+        is_my_bookmark=source2 is not None
+    )
+
 def to_SearchMarathonsResponse(source: list[MarathonGlobal]) -> SearchMarathonsResponse:
     result = []
     for s in source:
@@ -192,3 +214,25 @@ def to_SearchMarathonsResponse(source: list[MarathonGlobal]) -> SearchMarathonsR
     ))
         
     return result
+
+def to_searchMarathonDetailQuery(source: SearchMarathonDetailCommand) -> SearchMarathonDetailQuery:
+    return SearchMarathonDetailQuery(marathon_id=source.marathon_id, my_user_id=source.my_user_id)
+
+def to_SearchMarathonDetailResponse(source: MarathonGlobal) -> SearchMarathonDetailResponse:
+    return SearchMarathonDetailResponse(marathon_id = source.id,
+                                        title = source.title,
+                                        owner = source.owner,
+                                        email = source.email,
+                                        schedule = source.schedule,
+                                        contact = source.contact,
+                                        course = source.course,
+                                        location = source.location,
+                                        venue = source.venue,
+                                        host = source.host,
+                                        duration = source.duration,
+                                        homepage = source.homepage,
+                                        venue_detail = source.venue_detail,
+                                        remark = source.remark,
+                                        registered_at = source.registered_at,
+                                        is_bookmarking = source.is_my_bookmark
+    )

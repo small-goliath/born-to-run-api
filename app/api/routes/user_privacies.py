@@ -7,7 +7,7 @@ from app.api.routes.schemas import ModifyUserPrivacyRequest, SearchUserPrivacyRe
 
 router = APIRouter()
 
-@router.post("/user")
+@router.put("/user")
 async def modify_user_privacy(session: SessionDep, request: ModifyUserPrivacyRequest, my_user_id: CurrentUserId):
     await proxy.modify_user_privacy(session, my_user_id, request)
     return Response(status_code=200)

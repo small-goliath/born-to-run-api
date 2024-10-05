@@ -13,7 +13,7 @@ from app.api.deps import SessionDep
 from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest, SearchMarathonsRequest
 from app.consts import Bucket
 from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, \
-    UserGlobal, UserPrivacyGlobal, MarathonGlobal
+    UserGlobal, UserPrivacyGlobal, MarathonGlobal, SearchMarathonDetailCommand
 
 
 def cache_key_builder(func, *args):
@@ -104,7 +104,7 @@ async def search_marathons(session: SessionDep, request: SearchMarathonsRequest,
     command = converter.to_searchMarathonsCommand(request, my_user_id)
     return await marathon_service.search_marathons(session, command)
 
-# @cache_decorator()
-# async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_id: int) -> list[MarathonGlobal]:
-    # command = converter.to_searchMarathonsCommand(marathon_id, my_user_id)
-    # return await marathon_service.search_marathons(session, command)
+@cache_decorator()
+async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_id: int) -> MarathonGlobal:
+    command = SearchMarathonDetailCommand(my_user_id=my_user_id, marathon_id=marathon_id)
+    return await marathon_service.search_marathon_detail(session, command)

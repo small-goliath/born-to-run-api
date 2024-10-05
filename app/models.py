@@ -247,3 +247,29 @@ class MarathonBookmark(MarathonBookmarkBase, table=True):
     )
     marathon: Marathon = Relationship(back_populates="marathon_bookmarks", sa_relationship_kwargs=dict(foreign_keys="[MarathonBookmark.marathon_id]"))
     user: User = Relationship(back_populates="marathon_bookmarks", sa_relationship_kwargs=dict(foreign_keys="[MarathonBookmark.user_id]"))
+
+class SearchMarathonDetailCommand(BaseModel):
+    my_user_id: int
+    marathon_id: int
+
+class SearchMarathonDetailQuery(BaseModel):
+    my_user_id: int
+    marathon_id: int
+
+class SearchMarathonDetailResponse(BaseModel):
+    marathon_id: int
+    title: Optional[str]
+    owner: Optional[str]
+    email: Optional[str]
+    schedule: Optional[str]
+    contact: Optional[str]
+    course: Optional[str]
+    location: Optional[str]
+    venue: Optional[str]
+    host: Optional[str]
+    duration: Optional[str]
+    homepage: Optional[str]
+    venue_detail: Optional[str]
+    remark: Optional[str]
+    registered_at: datetime
+    is_bookmarking: bool
