@@ -1,14 +1,17 @@
 import logging
 
 from sqlmodel import select
-
+from fastapi import HTTPException
 from app.api.deps import SessionDep
 from app.models import Authority, Crew, ModifyUserQuery, ObjectStorage, User, UserPrivacy
 
 
 async def search_user(session: SessionDep, user_id: int) -> User:
     statement = select(User, Crew, ObjectStorage).select_from(User).where(User.id == user_id).join(Crew).join(ObjectStorage, isouter=True).join(UserPrivacy, isouter=True).join(Authority, isouter=True)
-    user = session.exec(statement).one()
+    user = session.exec(statement).one_or_none()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자가 존재하지 않습니다.")
 
     logging.debug(f"found user: {user}")
     

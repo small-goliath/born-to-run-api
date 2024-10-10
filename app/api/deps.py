@@ -2,6 +2,7 @@ import logging
 from collections.abc import Generator
 from typing import Annotated
 
+import re
 import jwt
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import pkcs12
@@ -40,12 +41,18 @@ def load_pkcs12_keystore(pkcs12_file: str, password: str):
 
 REQUIRED_LOGIN_APIS: dict[str, list[str]] = {
         "GET": ["/api/v1/users/my", "/api/v1/privacy/user"],
-        "POST": ["/api/v1/join/sign-up", "/api/v1/token", "/api/v1/object_storages"],
+        "POST": ["/api/v1/join/sign-up", "/api/v1/token", "/api/v1/object_storages/{bucket}", "/api/v1/marathons/bookmark/{marathon_id}"],
         "PUT": ["/api/v1/users/my", "/api/v1/privacy/user"],
-        "DELETE": ["/api/v1/object_storages"]
+        "DELETE": ["/api/v1/object_storages/{bucket}/{file_id}", "/api/v1/marathons/bookmark/{marathon_id}"]
 }
 
-def get_current_user(request: Request, access_token=Security(APIKeyHeader(name='Authentication', auto_error=False))) -> int:
+def path_matches(pattern: str, path: str) -> bool:
+    # 정규식으로 경로 변수에 해당하는 부분을 모든 문자열 패턴으로 치환
+    regex_pattern = re.sub(r"\{[^\}]+\}", r"[^/]+", pattern)
+    return re.match(f"^{regex_pattern}$", path) is not None
+
+def get_current_user(request: Request,
+                     access_token=Security(APIKeyHeader(name='Authentication', auto_error=False))) -> int:
     try:
         private_key, certificate = load_pkcs12_keystore('../oauth2runacerApi.p12', settings.P12_SECRET_KEY)
         public_key = certificate.public_key()
@@ -71,8 +78,13 @@ def get_current_user(request: Request, access_token=Security(APIKeyHeader(name='
         
         return -1
 
-    if user_id == -1 and request.url.path in REQUIRED_LOGIN_APIS.get(request.method):
-        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    method = request.method
+    path = request.url.path
+    required_login_paths = REQUIRED_LOGIN_APIS.get(method, [])
+
+    for required_path in required_login_paths:
+        if path_matches(required_path, path) and user_id == -1:
+            raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
     
     return user_id
 

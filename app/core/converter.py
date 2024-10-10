@@ -1,6 +1,7 @@
-from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMarathonsResponse, SearchMyDetailResponse, \
+from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, SearchMarathonsResponse, \
+    SearchMyDetailResponse, \
     SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse, \
-    SearchMarathonsRequest
+    SearchMarathonsRequest, SearchMarathonDetailResponse
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
 from app.models import BookmarkMarathonCommand, BookmarkMarathonQuery, Crew, CrewGlobal, DropFileCommand, DropFileQuery, \
     MarathonBookmark, ModifyUserCommand, \
@@ -8,7 +9,7 @@ from app.models import BookmarkMarathonCommand, BookmarkMarathonQuery, Crew, Cre
     ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, \
     UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal, \
     SearchMarathonsCommand, SearchMarathonsQuery, MarathonGlobal, Marathon, SearchMarathonDetailCommand, \
-    SearchMarathonDetailQuery, SearchMarathonDetailResponse, CancelBookmarkMarathonQuery, CancelBookmarkMarathonCommand
+    SearchMarathonDetailQuery, CancelBookmarkMarathonQuery, CancelBookmarkMarathonCommand
 
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
