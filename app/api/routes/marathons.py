@@ -3,7 +3,8 @@ from fastapi import APIRouter
 import app.core.converter as converter
 import app.core.proxy as proxy
 from app.api.deps import SessionDep, CurrentUserId
-from app.api.routes.schemas import BookmarkMarathonResponse, SearchMarathonDetailResponse, SearchMarathonsRequest
+from app.api.routes.schemas import BookmarkMarathonResponse, SearchMarathonDetailResponse, SearchMarathonsRequest, \
+    CancelBookmarkMarathonResponse
 
 router = APIRouter()
 
@@ -21,3 +22,8 @@ async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_
 async def bookmark_marathon(session: SessionDep, marathon_id: int, my_user_id: CurrentUserId) -> BookmarkMarathonResponse:
     marathon_id = await proxy.bookmark_marathon(session, marathon_id, my_user_id)
     return BookmarkMarathonResponse(marathon_id=marathon_id)
+
+@router.delete("/bookmark/{marathon_id}")
+async def cancel_bookmark_marathon(session: SessionDep, marathon_id: int, my_user_id: CurrentUserId) -> CancelBookmarkMarathonResponse:
+    marathon_id = await proxy.cancel_bookmark_marathon(session, marathon_id, my_user_id)
+    return CancelBookmarkMarathonResponse(marathon_id=marathon_id)

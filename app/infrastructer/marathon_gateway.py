@@ -39,3 +39,17 @@ async def bookmark(session: SessionDep, query: BookmarkMarathonQuery) -> Maratho
     logging.debug(f"SUCCESS to bookmark marathon: {bookmarked}")
 
     return bookmarked
+
+async def cancel_bookmark(session: SessionDep, query: BookmarkMarathonQuery) -> MarathonBookmark:
+    logging.debug(f"Try to cancel bookmark marathon: {query}")
+
+    statement = select(MarathonBookmark).where(and_(Marathon.id == query.marathon_id, MarathonBookmark.user_id == query.my_user_id))
+    marathon_bookmark = session.exec(statement).one()
+
+    marathon_bookmark.is_deleted = True
+
+    session.add(marathon_bookmark)
+    session.commit()
+    logging.debug(f"SUCCESS to cancel bookmark marathon: {marathon_bookmark}")
+
+    return marathon_bookmark

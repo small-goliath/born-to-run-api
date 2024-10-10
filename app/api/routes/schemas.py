@@ -100,3 +100,6 @@ class SearchMarathonDetailResponse(BaseModel):
 
 class BookmarkMarathonResponse(BaseModel):
     marathon_id: int
+
+class CancelBookmarkMarathonResponse(BaseModel):
+    marathon_id: int

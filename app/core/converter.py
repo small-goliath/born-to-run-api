@@ -2,12 +2,13 @@ from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, Se
     SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse, \
     SearchMarathonsRequest
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import BookmarkMarathonCommand, BookmarkMarathonQuery, Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, \
+from app.models import BookmarkMarathonCommand, BookmarkMarathonQuery, Crew, CrewGlobal, DropFileCommand, DropFileQuery, \
+    MarathonBookmark, ModifyUserCommand, \
     ModifyUserPrivacyCommand, \
     ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, \
     UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal, \
     SearchMarathonsCommand, SearchMarathonsQuery, MarathonGlobal, Marathon, SearchMarathonDetailCommand, \
-    SearchMarathonDetailQuery, SearchMarathonDetailResponse
+    SearchMarathonDetailQuery, SearchMarathonDetailResponse, CancelBookmarkMarathonQuery, CancelBookmarkMarathonCommand
 
 
 # TODO: 등록된 크루가 굉장히 많아지면 async
@@ -239,3 +240,6 @@ def to_SearchMarathonDetailResponse(source: MarathonGlobal) -> SearchMarathonDet
 
 def to_bookmarkMarathonQuery(source: BookmarkMarathonCommand) -> BookmarkMarathonQuery:
     return BookmarkMarathonQuery(my_user_id=source.my_user_id, marathon_id=source.marathon_id)
+
+def to_cancelBookmarkMarathonQuery(source: CancelBookmarkMarathonCommand) -> CancelBookmarkMarathonQuery:
+    return CancelBookmarkMarathonQuery(my_user_id=source.my_user_id, marathon_id=source.marathon_id)

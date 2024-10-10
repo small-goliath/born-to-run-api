@@ -1,7 +1,8 @@
 import app.core.converter as converter
 import app.infrastructer.marathon_gateway as marathon_gateway
 from app.api.deps import SessionDep
-from app.models import BookmarkMarathonCommand, MarathonGlobal, SearchMarathonsCommand, SearchMarathonDetailCommand
+from app.models import BookmarkMarathonCommand, MarathonGlobal, SearchMarathonsCommand, SearchMarathonDetailCommand, \
+    CancelBookmarkMarathonCommand
 
 
 async def search_marathons(session: SessionDep, command: SearchMarathonsCommand) -> list[MarathonGlobal]:
@@ -21,3 +22,9 @@ async def bookmark(session: SessionDep, command: BookmarkMarathonCommand) -> int
     bookmarked = await marathon_gateway.bookmark(session, query)
 
     return bookmarked.marathon_id
+
+async def cancel_bookmark(session: SessionDep, command: CancelBookmarkMarathonCommand) -> int:
+    query = converter.to_cancelBookmarkMarathonQuery(command)
+    canceled = await marathon_gateway.bookmark(session, query)
+
+    return canceled.marathon_id

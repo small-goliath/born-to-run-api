@@ -263,3 +263,11 @@ class BookmarkMarathonCommand(BaseModel):
 class BookmarkMarathonQuery(BaseModel):
     my_user_id: int
     marathon_id: int
+
+class CancelBookmarkMarathonCommand(BaseModel):
+    my_user_id: int
+    marathon_id: int
+
+class CancelBookmarkMarathonQuery(BaseModel):
+    my_user_id: int
+    marathon_id: int

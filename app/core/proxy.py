@@ -14,7 +14,7 @@ from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpReque
 from app.consts import Bucket
 from app.models import BookmarkMarathonCommand, CrewBase, DropFileCommand, SignInResult, SignUpResult, \
     UploadFileCommand, UploadFileGlobal, \
-    UserGlobal, UserPrivacyGlobal, MarathonGlobal, SearchMarathonDetailCommand
+    UserGlobal, UserPrivacyGlobal, MarathonGlobal, SearchMarathonDetailCommand, CancelBookmarkMarathonCommand
 
 
 def cache_key_builder(func, *args):
@@ -114,3 +114,7 @@ async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_
 async def bookmark_marathon(session: SessionDep, marathon_id: int, my_user_id: int) -> int:
     command = BookmarkMarathonCommand(my_user_id=my_user_id, marathon_id=marathon_id)
     return await marathon_service.bookmark(session, command)
+
+async def cancel_bookmark_marathon(session: SessionDep, marathon_id: int, my_user_id: int) -> int:
+    command = CancelBookmarkMarathonCommand(my_user_id=my_user_id, marathon_id=marathon_id)
+    return await marathon_service.cancel_bookmark(session, command)
