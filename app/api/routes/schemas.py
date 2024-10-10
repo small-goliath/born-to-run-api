@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -78,3 +79,24 @@ class SearchMarathonsResponse(BaseModel):
     venue: Optional[str]
     course: Optional[str]
     is_bookmarking: bool
+
+class SearchMarathonDetailResponse(BaseModel):
+    marathon_id: int
+    title: Optional[str]
+    owner: Optional[str]
+    email: Optional[str]
+    schedule: Optional[str]
+    contact: Optional[str]
+    course: Optional[str]
+    location: Optional[str]
+    venue: Optional[str]
+    host: Optional[str]
+    duration: Optional[str]
+    homepage: Optional[str]
+    venue_detail: Optional[str]
+    remark: Optional[str]
+    registered_at: datetime
+    is_bookmarking: bool
+
+class BookmarkMarathonResponse(BaseModel):
+    marathon_id: int

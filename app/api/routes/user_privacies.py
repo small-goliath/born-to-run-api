@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Response
 
 import app.core.converter as converter
 import app.core.proxy as proxy
-from app.api.deps import SessionDep, get_current_user, CurrentUserId
+from app.api.deps import SessionDep, CurrentUserId
 from app.api.routes.schemas import ModifyUserPrivacyRequest, SearchUserPrivacyResponse
 
 router = APIRouter()

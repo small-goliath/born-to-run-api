@@ -3,7 +3,8 @@ import logging
 from sqlmodel import and_, select
 
 from app.api.deps import SessionDep
-from app.models import SearchMarathonsQuery, Marathon, MarathonBookmark, SearchMarathonDetailQuery
+from app.models import BookmarkMarathonQuery, SearchMarathonsQuery, Marathon, MarathonBookmark, \
+    SearchMarathonDetailQuery
 
 
 async def search_marathons(session: SessionDep, query: SearchMarathonsQuery) -> tuple[list[Marathon], list[MarathonBookmark]]:
@@ -27,3 +28,14 @@ async def search_marathon_detail(session: SessionDep, query: SearchMarathonDetai
     result = session.exec(statement).one()
 
     return result
+
+async def bookmark(session: SessionDep, query: BookmarkMarathonQuery) -> MarathonBookmark:
+    logging.debug(f"Try to bookmark marathon: {query}")
+
+    bookmarked = MarathonBookmark(marathon_id=query.marathon_id, user_id=query.my_user_id)
+
+    session.add(bookmarked)
+    session.commit()
+    logging.debug(f"SUCCESS to bookmark marathon: {bookmarked}")
+
+    return bookmarked

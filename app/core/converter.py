@@ -2,7 +2,7 @@ from app.api.routes.schemas import ModifyUserRequest, SearchCrewsAllResponse, Se
     SearchUserPrivacyResponse, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse, UploadFileResponse, \
     SearchMarathonsRequest
 from app.infrastructer.schemas import OAutn2SignInRequest, OAutn2SignInResponse, OAutn2TokenResponse
-from app.models import Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, \
+from app.models import BookmarkMarathonCommand, BookmarkMarathonQuery, Crew, CrewGlobal, DropFileCommand, DropFileQuery, MarathonBookmark, ModifyUserCommand, \
     ModifyUserPrivacyCommand, \
     ModifyUserQuery, ObjectStorage, SignInCommand, SignInResult, SignUpCommand, SignUpQuery, SignUpResult, \
     UploadFileCommand, UploadFileGlobal, UploadFileQuery, User, UserGlobal, UserPrivacy, UserPrivacyGlobal, \
@@ -236,3 +236,6 @@ def to_SearchMarathonDetailResponse(source: MarathonGlobal) -> SearchMarathonDet
                                         registered_at = source.registered_at,
                                         is_bookmarking = source.is_my_bookmark
     )
+
+def to_bookmarkMarathonQuery(source: BookmarkMarathonCommand) -> BookmarkMarathonQuery:
+    return BookmarkMarathonQuery(my_user_id=source.my_user_id, marathon_id=source.marathon_id)

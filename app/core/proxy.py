@@ -12,7 +12,8 @@ import app.core.user_service as user_service
 from app.api.deps import SessionDep
 from app.api.routes.schemas import ModifyUserRequest, SignInRequest, SignUpRequest, SearchMarathonsRequest
 from app.consts import Bucket
-from app.models import CrewBase, DropFileCommand, SignInResult, SignUpResult, UploadFileCommand, UploadFileGlobal, \
+from app.models import BookmarkMarathonCommand, CrewBase, DropFileCommand, SignInResult, SignUpResult, \
+    UploadFileCommand, UploadFileGlobal, \
     UserGlobal, UserPrivacyGlobal, MarathonGlobal, SearchMarathonDetailCommand
 
 
@@ -108,3 +109,8 @@ async def search_marathons(session: SessionDep, request: SearchMarathonsRequest,
 async def search_marathon_detail(session: SessionDep, marathon_id: int, my_user_id: int) -> MarathonGlobal:
     command = SearchMarathonDetailCommand(my_user_id=my_user_id, marathon_id=marathon_id)
     return await marathon_service.search_marathon_detail(session, command)
+
+@clear_cache_decorator
+async def bookmark_marathon(session: SessionDep, marathon_id: int, my_user_id: int) -> int:
+    command = BookmarkMarathonCommand(my_user_id=my_user_id, marathon_id=marathon_id)
+    return await marathon_service.bookmark(session, command)

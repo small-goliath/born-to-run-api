@@ -231,9 +231,9 @@ class Marathon(MarathonBase, table=True):
 
 class MarathonBookmarkBase(SQLModel):
     bookmark_id: int = Field(primary_key=True)
-    registered_at: datetime
-    updated_at: datetime
-    is_deleted: bool
+    registered_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+    is_deleted: bool = False
 
 class MarathonBookmark(MarathonBookmarkBase, table=True):
     __tablename__ = "marathon_bookmark"
@@ -256,20 +256,10 @@ class SearchMarathonDetailQuery(BaseModel):
     my_user_id: int
     marathon_id: int
 
-class SearchMarathonDetailResponse(BaseModel):
+class BookmarkMarathonCommand(BaseModel):
+    my_user_id: int
     marathon_id: int
-    title: Optional[str]
-    owner: Optional[str]
-    email: Optional[str]
-    schedule: Optional[str]
-    contact: Optional[str]
-    course: Optional[str]
-    location: Optional[str]
-    venue: Optional[str]
-    host: Optional[str]
-    duration: Optional[str]
-    homepage: Optional[str]
-    venue_detail: Optional[str]
-    remark: Optional[str]
-    registered_at: datetime
-    is_bookmarking: bool
+
+class BookmarkMarathonQuery(BaseModel):
+    my_user_id: int
+    marathon_id: int
